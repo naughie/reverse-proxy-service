@@ -2,4 +2,4 @@
 
 These `Service`s are implemented to be used in [axum](https://crates.io/crates/axum), but they can be used in a more general situation.
 
-See the [documentation](https://crates.io/crates/reverse-proxy-service).
+See the [documentation](https://docs.rs/reverse-proxy-service).
