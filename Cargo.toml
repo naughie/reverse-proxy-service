@@ -1,0 +1,39 @@
+[package]
+name = "reverse-proxy-service"
+version = "0.1.0"
+edition = "2021"
+authors = ["Masato Nakata <masaton@naughie.com>"]
+description = "Tower service for reverse proxy"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/naughie/reverse-proxy-service"
+documentation = "https://docs.rs/reverse-proxy-service"
+keywords = ["http", "tower", "axum", "reverse", "proxy"]
+categories = ["asynchronous", "web-programming", "web-programming::http-server"]
+readme = "README.md"
+include = ["src/", "LICENSE-*", "README.md"]
+
+[features]
+default = ["http1"]
+http1 = ["hyper/http1"]
+http2 = ["hyper/http2"]
+https = ["hyper-tls"]
+
+[dependencies]
+tower-service = "0.3"
+http = "0.2"
+hyper = { version = "0.14", features = ["client", "tcp"] }
+
+axum = { version = "0.6", features = [], optional = true }
+
+hyper-tls = { version = "0.5", optional = true }
+
+regex = "1.7"
+log = "0.4"
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+mockito = "0.31"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
