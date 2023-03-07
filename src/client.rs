@@ -8,6 +8,7 @@ use hyper::client::connect::Connect;
 pub use hyper::client::connect::HttpConnector;
 
 #[cfg(feature = "https")]
+#[cfg_attr(docsrs, doc(cfg(feature = "https")))]
 pub use hyper_tls::HttpsConnector;
 
 /// Default [`Builder`].
@@ -26,6 +27,7 @@ where
 
 /// With the default [`HttpsConnector`].
 #[cfg(feature = "https")]
+#[cfg_attr(docsrs, doc(cfg(feature = "https")))]
 pub fn https_default<B>() -> Client<HttpsConnector<HttpConnector>, B>
 where
     B: HttpBody + Send,

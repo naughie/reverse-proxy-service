@@ -73,6 +73,7 @@ where
 ///
 /// For the meaning of "authority", refer to the documentation of [`Uri`](http::uri::Uri).
 #[cfg(feature = "https")]
+#[cfg_attr(docsrs, doc(cfg(feature = "https")))]
 pub fn builder_https<B, A>(
     authority: A,
 ) -> Result<Builder<HttpsConnector<HttpConnector>, B>, HttpError>
@@ -212,6 +213,7 @@ where
     B: HttpBody + Send,
     B::Data: Send,
 {
+    #[cfg_attr(docsrs, doc(cfg(feature = "https")))]
     pub fn https_default<A>(
         client: Arc<Client<HttpsConnector<HttpConnector>, B>>,
         authority: A,

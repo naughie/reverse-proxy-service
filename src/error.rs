@@ -31,6 +31,7 @@ impl fmt::Display for Error {
 impl StdError for Error {}
 
 #[cfg(feature = "axum")]
+#[cfg_attr(docsrs, doc(cfg(feature = "axum")))]
 impl IntoResponse for Error {
     fn into_response(self) -> Response {
         log::error!("{self}");

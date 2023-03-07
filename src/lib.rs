@@ -124,17 +124,25 @@ pub use future::RevProxyFuture;
 #[cfg(any(feature = "http1", feature = "http2"))]
 mod oneshot;
 #[cfg(any(feature = "http1", feature = "http2"))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = "http1", feature = "http2"))))]
 pub use oneshot::OneshotService;
 
 #[cfg(any(feature = "http1", feature = "http2"))]
 mod reused;
 #[cfg(all(any(feature = "http1", feature = "http2"), feature = "https"))]
+#[cfg_attr(
+    docsrs,
+    doc(cfg(all(any(feature = "http1", feature = "http2"), feature = "https")))
+)]
 pub use reused::builder_https;
 #[cfg(any(feature = "http1", feature = "http2"))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = "http1", feature = "http2"))))]
 pub use reused::Builder as ReusedServiceBuilder;
 #[cfg(any(feature = "http1", feature = "http2"))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = "http1", feature = "http2"))))]
 pub use reused::ReusedService;
 #[cfg(any(feature = "http1", feature = "http2"))]
+#[cfg_attr(docsrs, doc(cfg(any(feature = "http1", feature = "http2"))))]
 pub use reused::{builder, builder_http};
 
 #[cfg(test)]
