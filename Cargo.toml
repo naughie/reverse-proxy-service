@@ -35,7 +35,7 @@ axum = { version = "0.6", features = [], optional = true }
 hyper-tls = { version = "0.5", optional = true }
 hyper-rustls = { version = "0.24", optional = true }
 
-regex = "1.7"
+regex = "1.8"
 log = "0.4"
 
 [dev-dependencies]
