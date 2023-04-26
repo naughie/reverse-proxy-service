@@ -100,13 +100,23 @@
 //!
 //! # Features
 //!
-//! - `http1`: default on
-//! - `http2`: default off
-//! - `https`: default off
-//! - `axum`: default off
+//! By default only `http1` is enabled.
+//!
+//! - `http1`: uses `hyper/http1`
+//! - `http2`: uses `hyper/http2`
+//! - `https`: alias to `nativetls`
+//! - `nativetls`: uses the `hyper-tls` crate
+//! - `rustls`: alias to `rustls-webpki-roots`
+//! - `rustls-webpki-roots`: uses the `hyper-rustls` crate, with the feature `webpki-roots`
+//! - `rustls-native-roots`: uses the `hyper-rustls` crate, with the feature `rustls-native-certs`
+//! - `rustls-http2`: `http2` plus `rustls`, and `rustls/http2` is enabled
+//! - `axum`: implements [`IntoResponse`](axum::response::IntoResponse) for [`Error`]
 //!
 //! You must turn on either `http1`or `http2`. You cannot use the services if, for example, only
 //! the `https` feature is on.
+//!
+//! Through this document, we use `rustls` to mean *any* of `rustls*` features unless otherwise
+//! specified.
 
 mod error;
 pub use error::Error;
@@ -129,12 +139,30 @@ pub use oneshot::OneshotService;
 
 #[cfg(any(feature = "http1", feature = "http2"))]
 mod reused;
-#[cfg(all(any(feature = "http1", feature = "http2"), feature = "https"))]
+#[cfg(all(
+    any(feature = "http1", feature = "http2"),
+    any(feature = "https", feature = "nativetls")
+))]
 #[cfg_attr(
     docsrs,
-    doc(cfg(all(any(feature = "http1", feature = "http2"), feature = "https")))
+    doc(cfg(all(
+        any(feature = "http1", feature = "http2"),
+        any(feature = "https", feature = "nativetls")
+    )))
 )]
 pub use reused::builder_https;
+#[cfg(all(any(feature = "http1", feature = "http2"), feature = "nativetls"))]
+#[cfg_attr(
+    docsrs,
+    doc(cfg(all(any(feature = "http1", feature = "http2"), feature = "nativetls")))
+)]
+pub use reused::builder_nativetls;
+#[cfg(all(any(feature = "http1", feature = "http2"), feature = "__rustls"))]
+#[cfg_attr(
+    docsrs,
+    doc(cfg(all(any(feature = "http1", feature = "http2"), feature = "rustls")))
+)]
+pub use reused::builder_rustls;
 #[cfg(any(feature = "http1", feature = "http2"))]
 #[cfg_attr(docsrs, doc(cfg(any(feature = "http1", feature = "http2"))))]
 pub use reused::Builder as ReusedServiceBuilder;
