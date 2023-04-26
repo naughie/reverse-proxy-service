@@ -4,8 +4,10 @@ use crate::rewrite::PathRewriter;
 use crate::Error;
 
 use client::HttpConnector;
-#[cfg(feature = "https")]
-use client::HttpsConnector;
+#[cfg(feature = "__rustls")]
+use client::RustlsConnector;
+#[cfg(feature = "nativetls")]
+use hyper_tls::HttpsConnector as NativeTlsConnector;
 
 use http::uri::{Authority, Scheme};
 use http::Error as HttpError;
@@ -115,18 +117,20 @@ where
     }
 }
 
-#[cfg(feature = "https")]
-impl<Pr, B> OneshotService<Pr, HttpsConnector<HttpConnector>, B>
+#[cfg(any(feature = "https", feature = "nativetls"))]
+impl<Pr, B> OneshotService<Pr, NativeTlsConnector<HttpConnector>, B>
 where
     B: HttpBody + Send,
     B::Data: Send,
 {
     /// Use [`client::https_default()`] to build a client.
     ///
+    /// This is the same as [`Self::nativetls_default()`].
+    ///
     /// For the meaning of "authority", refer to the documentation of [`Uri`](http::uri::Uri).
     ///
     /// The `path` should implement [`PathRewriter`].
-    #[cfg_attr(docsrs, doc(cfg(feature = "https")))]
+    #[cfg_attr(docsrs, doc(cfg(any(feature = "https", feature = "nativetls"))))]
     pub fn https_default<A>(authority: A, path: Pr) -> Result<Self, HttpError>
     where
         Authority: TryFrom<A>,
@@ -135,6 +139,60 @@ where
         let authority = authority.try_into().map_err(Into::into)?;
         Ok(Self {
             client: client::https_default(),
+            scheme: Scheme::HTTPS,
+            authority,
+            path,
+        })
+    }
+}
+
+#[cfg(feature = "nativetls")]
+impl<Pr, B> OneshotService<Pr, NativeTlsConnector<HttpConnector>, B>
+where
+    B: HttpBody + Send,
+    B::Data: Send,
+{
+    /// Use [`client::nativetls_default()`] to build a client.
+    ///
+    /// For the meaning of "authority", refer to the documentation of [`Uri`](http::uri::Uri).
+    ///
+    /// The `path` should implement [`PathRewriter`].
+    #[cfg_attr(docsrs, doc(cfg(feature = "nativetls")))]
+    pub fn nativetls_default<A>(authority: A, path: Pr) -> Result<Self, HttpError>
+    where
+        Authority: TryFrom<A>,
+        <Authority as TryFrom<A>>::Error: Into<HttpError>,
+    {
+        let authority = authority.try_into().map_err(Into::into)?;
+        Ok(Self {
+            client: client::nativetls_default(),
+            scheme: Scheme::HTTPS,
+            authority,
+            path,
+        })
+    }
+}
+
+#[cfg(feature = "__rustls")]
+impl<Pr, B> OneshotService<Pr, RustlsConnector<HttpConnector>, B>
+where
+    B: HttpBody + Send,
+    B::Data: Send,
+{
+    /// Use [`client::rustls_default()`] to build a client.
+    ///
+    /// For the meaning of "authority", refer to the documentation of [`Uri`](http::uri::Uri).
+    ///
+    /// The `path` should implement [`PathRewriter`].
+    #[cfg_attr(docsrs, doc(cfg(feature = "rustls")))]
+    pub fn https_default<A>(authority: A, path: Pr) -> Result<Self, HttpError>
+    where
+        Authority: TryFrom<A>,
+        <Authority as TryFrom<A>>::Error: Into<HttpError>,
+    {
+        let authority = authority.try_into().map_err(Into::into)?;
+        Ok(Self {
+            client: client::rustls_default(),
             scheme: Scheme::HTTPS,
             authority,
             path,
