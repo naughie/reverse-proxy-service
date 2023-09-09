@@ -87,7 +87,7 @@ where
     Authority: TryFrom<A>,
     <Authority as TryFrom<A>>::Error: Into<HttpError>,
 {
-    builder(client::https_default(), Scheme::HTTP, authority)
+    builder(client::https_default(), Scheme::HTTPS, authority)
 }
 
 /// Builder of [`ReusedService`], with [`client::nativetls_default()`].
@@ -104,7 +104,7 @@ where
     Authority: TryFrom<A>,
     <Authority as TryFrom<A>>::Error: Into<HttpError>,
 {
-    builder(client::nativetls_default(), Scheme::HTTP, authority)
+    builder(client::nativetls_default(), Scheme::HTTPS, authority)
 }
 
 /// Builder of [`ReusedService`], with [`client::rustls_default()`].
@@ -121,7 +121,7 @@ where
     Authority: TryFrom<A>,
     <Authority as TryFrom<A>>::Error: Into<HttpError>,
 {
-    builder(client::rustls_default(), Scheme::HTTP, authority)
+    builder(client::rustls_default(), Scheme::HTTPS, authority)
 }
 
 /// Builder of [`ReusedService`].
