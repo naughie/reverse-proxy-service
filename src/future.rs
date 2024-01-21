@@ -5,8 +5,8 @@ use http::uri::{Authority, Scheme};
 use http::Error as HttpError;
 use http::{Request, Response};
 
-use hyper::body::{Body, HttpBody};
-use hyper::client::{connect::Connect, Client, ResponseFuture};
+use hyper::body::{Body as HttpBody, Incoming};
+use hyper_util::client::legacy::{connect::Connect, Client, ResponseFuture};
 
 use std::convert::Infallible;
 use std::future::Future;
@@ -29,7 +29,7 @@ impl RevProxyFuture {
     ) -> Self
     where
         C: Connect + Clone + Send + Sync + 'static,
-        B: HttpBody + Send + 'static,
+        B: HttpBody + Send + 'static + Unpin,
         B::Data: Send,
         B::Error: Into<BoxErr>,
         Pr: PathRewriter,
@@ -43,7 +43,7 @@ impl RevProxyFuture {
 }
 
 impl Future for RevProxyFuture {
-    type Output = Result<Result<Response<Body>, Error>, Infallible>;
+    type Output = Result<Result<Response<Incoming>, Error>, Infallible>;
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         match &mut self.inner {
