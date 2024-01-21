@@ -13,8 +13,9 @@ use http::uri::{Authority, Scheme};
 use http::Error as HttpError;
 use http::{Request, Response};
 
-use hyper::body::{Body, HttpBody};
-use hyper::client::{connect::Connect, Client};
+use hyper::body::Body as HttpBody;
+use hyper::body::Incoming;
+use hyper_util::client::legacy::{connect::Connect, Client};
 
 use tower_service::Service;
 
@@ -26,7 +27,7 @@ type BoxErr = Box<dyn std::error::Error + Send + Sync>;
 
 /// The return type of [`builder()`], [`builder_http()`] and [`builder_https()`].
 #[derive(Debug)]
-pub struct Builder<C = HttpConnector, B = Body> {
+pub struct Builder<C = HttpConnector, B = Incoming> {
     client: Arc<Client<C, B>>,
     scheme: Scheme,
     authority: Authority,
@@ -178,7 +179,7 @@ where
 /// # }
 /// ```
 #[derive(Debug)]
-pub struct ReusedService<Pr, C, B = Body> {
+pub struct ReusedService<Pr, C, B = Incoming> {
     client: Arc<Client<C, B>>,
     scheme: Scheme,
     authority: Authority,
@@ -327,12 +328,12 @@ where
 impl<C, B, Pr> Service<Request<B>> for ReusedService<Pr, C, B>
 where
     C: Connect + Clone + Send + Sync + 'static,
-    B: HttpBody + Send + 'static,
+    B: HttpBody + Send + 'static + Unpin,
     B::Data: Send,
     B::Error: Into<BoxErr>,
     Pr: PathRewriter,
 {
-    type Response = Result<Response<Body>, Error>;
+    type Response = Result<Response<Incoming>, Error>;
     type Error = Infallible;
     type Future = RevProxyFuture;
 

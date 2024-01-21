@@ -13,8 +13,9 @@ use http::uri::{Authority, Scheme};
 use http::Error as HttpError;
 use http::{Request, Response};
 
-use hyper::body::{Body, HttpBody};
-use hyper::client::{connect::Connect, Client};
+//use hyper::body::{Body, HttpBody};
+use hyper::body::{Body as HttpBody, Incoming};
+use hyper_util::client::legacy::{connect::Connect, Client};
 
 use tower_service::Service;
 
@@ -41,7 +42,7 @@ type BoxErr = Box<dyn std::error::Error + Send + Sync>;
 /// let _res = svc.call(req).await.unwrap();
 /// # }
 /// ```
-pub struct OneshotService<Pr, C = HttpConnector, B = Body> {
+pub struct OneshotService<Pr, C = HttpConnector, B = Incoming> {
     client: Client<C, B>,
     scheme: Scheme,
     authority: Authority,
@@ -203,12 +204,12 @@ where
 impl<C, B, Pr> Service<Request<B>> for OneshotService<Pr, C, B>
 where
     C: Connect + Clone + Send + Sync + 'static,
-    B: HttpBody + Send + 'static,
+    B: HttpBody + Send + 'static + Unpin,
     B::Data: Send,
     B::Error: Into<BoxErr>,
     Pr: PathRewriter,
 {
-    type Response = Result<Response<Body>, Error>;
+    type Response = Result<Response<Incoming>, Error>;
     type Error = Infallible;
     type Future = RevProxyFuture;
 

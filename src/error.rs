@@ -1,5 +1,5 @@
 use http::Error as HttpError;
-use hyper::Error as HyperError;
+use hyper_util::client::legacy::Error as HyperError;
 
 #[cfg(feature = "axum")]
 use axum::response::{IntoResponse, Response};

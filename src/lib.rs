@@ -181,7 +181,9 @@ mod test_helper {
     use http::StatusCode;
     use http::{Request, Response};
 
-    use hyper::body::Body;
+    use hyper::body::Incoming;
+
+    use http_body_util::BodyExt;
 
     use tower_service::Service;
 
@@ -194,7 +196,7 @@ mod test_helper {
     ) where
         S: Service<
             Request<String>,
-            Response = Result<Response<Body>, Error>,
+            Response = Result<Response<Incoming>, Error>,
             Error = Infallible,
             Future = RevProxyFuture,
         >,
@@ -218,16 +220,16 @@ mod test_helper {
         assert!(res.is_ok());
         let res = res.unwrap();
         assert_eq!(res.status(), expected.0);
-        let res = hyper::body::to_bytes(res.into_body()).await;
+        let res = res.into_body().collect().await;
         assert!(res.is_ok());
-        assert_eq!(res.unwrap(), expected.1);
+        assert_eq!(res.unwrap().to_bytes(), expected.1);
     }
 
     pub async fn match_path<S>(svc: &mut S)
     where
         S: Service<
             Request<String>,
-            Response = Result<Response<Body>, Error>,
+            Response = Result<Response<Incoming>, Error>,
             Error = Infallible,
             Future = RevProxyFuture,
         >,
@@ -255,7 +257,7 @@ mod test_helper {
     where
         S: Service<
             Request<String>,
-            Response = Result<Response<Body>, Error>,
+            Response = Result<Response<Incoming>, Error>,
             Error = Infallible,
             Future = RevProxyFuture,
         >,
@@ -284,7 +286,7 @@ mod test_helper {
     where
         S: Service<
             Request<String>,
-            Response = Result<Response<Body>, Error>,
+            Response = Result<Response<Incoming>, Error>,
             Error = Infallible,
             Future = RevProxyFuture,
         >,
@@ -315,7 +317,7 @@ mod test_helper {
     where
         S: Service<
             Request<String>,
-            Response = Result<Response<Body>, Error>,
+            Response = Result<Response<Incoming>, Error>,
             Error = Infallible,
             Future = RevProxyFuture,
         >,
